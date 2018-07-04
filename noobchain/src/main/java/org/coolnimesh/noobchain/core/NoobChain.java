@@ -1,9 +1,12 @@
 package org.coolnimesh.noobchain.core;
 
+import java.math.BigDecimal;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.GsonBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.coolnimesh.noobchain.util.SecurityUtil;
 
 /**
  * Bloch chain class
@@ -15,27 +18,41 @@ public class NoobChain {
 
 	public static List<Block> blockChain = new ArrayList<Block>();
 	public static Integer difficulty = 5;
+	public static Wallet walletA;
+	public static Wallet walletB;
 
 	public static void main(String[] args) {
 
-		blockChain.add(new Block("0", "I am the genesis block"));
+		Security.addProvider(new BouncyCastleProvider());
+		walletA = new Wallet();
+		walletB = new Wallet();
 
-		System.out.println("Trying to mine block 1");
-		blockChain.get(blockChain.size() - 1).mineBlock(difficulty);
+		System.out.println("----------------- Private and Public keys are -----------------");
+		System.out.println("Private key: \t " + SecurityUtil.getStringFromKey(walletA.getPrivateKey()));
+		System.out.println("Public key:  \t " + SecurityUtil.getStringFromKey(walletA.getPublicKey()));
 
-		blockChain.add(new Block(blockChain.get(blockChain.size() - 1).getHash(), "This is the second block"));
-		System.out.println("Trying to mine block 2");
-		blockChain.get(blockChain.size() - 1).mineBlock(difficulty);
+		Transaction transaction = new Transaction(walletA.getPublicKey(), walletB.getPublicKey(), new BigDecimal(5), null);
+		transaction.generateSignature(walletA.getPrivateKey());
 
-		blockChain.add(new Block(blockChain.get(blockChain.size() - 1).getHash(), "This is the third block"));
-		System.out.println("Trying to mine blcok 3");
-		blockChain.get(blockChain.size() - 1).mineBlock(difficulty);
-
-		System.out.println("Is block chain valid: " + isChainValid());
-
-		String json = new GsonBuilder().setPrettyPrinting().create().toJson(blockChain);
-
-		System.out.println(json);
+		System.out.println("Is Signature verifed? " + transaction.verifySignature());
+		// blockChain.add(new Block("0", "I am the genesis block"));
+		//
+		// System.out.println("Trying to mine block 1");
+		// blockChain.get(blockChain.size() - 1).mineBlock(difficulty);
+		//
+		// blockChain.add(new Block(blockChain.get(blockChain.size() - 1).getHash(), "This is the second block"));
+		// System.out.println("Trying to mine block 2");
+		// blockChain.get(blockChain.size() - 1).mineBlock(difficulty);
+		//
+		// blockChain.add(new Block(blockChain.get(blockChain.size() - 1).getHash(), "This is the third block"));
+		// System.out.println("Trying to mine blcok 3");
+		// blockChain.get(blockChain.size() - 1).mineBlock(difficulty);
+		//
+		// System.out.println("Is block chain valid: " + isChainValid());
+		//
+		// String json = new GsonBuilder().setPrettyPrinting().create().toJson(blockChain);
+		//
+		// System.out.println(json);
 
 	}
 
